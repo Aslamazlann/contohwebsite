@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Store</title>
+    <style>
+        /* Variabel Warna */
+        :root {
+            --primary: #0ea5e9; 
+            --primary-hover: #0284c7;
+            --bg-color: #f8fafc; 
+            --text-main: #334155;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --wa-color: #10b981; 
+            --wa-hover: #059669;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        header {
+            background-color: var(--white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--primary);
+        }
+
+        /* Layout Utama */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .page-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .page-section.active-page {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-primary { background-color: var(--primary); color: var(--white); }
+        .btn-primary2{background-color: #e2e8f0;}
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        .btn-wa { background-color: var(--wa-color); color: var(--white); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-wa:hover { background-color: var(--wa-hover); transform: translateY(-2px); }
+        .btn-outline { background-color: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 8px 16px; }
+        .btn-outline:hover { background-color: var(--primary); color: var(--white); }
+
+        /* =========================================
+           BAGIAN HERO YANG SUDAH DIPERBAIKI CSS-NYA
+           ========================================= */
+        .hero {
+            /* Gambar Background dari Unsplash */
+            background-image: url('https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            
+            padding: 100px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            margin-bottom: 40px;
+            
+            /* Diperlukan untuk overlay gelap */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Overlay gelap agar tulisan warna putih terbaca */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 50% gelap */
+            z-index: 1;
+        }
+
+        /* Konten teks di atas background */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Warna teks diubah jadi putih agar kontras */
+        .hero h1 { font-size: 3rem; margin-bottom: 16px; color: #ffffff; font-weight: 800; }
+        .hero p { font-size: 1.1rem; color: #f1f5f9; max-width: 600px; margin: 0 auto 30px auto; }
+
+        /* =========================================
+           STYLE UNTUK KATALOG BISA DI-SCROLL 
+           ========================================= */
+        .category-section { margin-bottom: 50px; }
+        .category-title {
+            font-size: 1.5rem; color: #0f172a; border-left: 5px solid var(--primary);
+            padding-left: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* Kontainer untuk scroll ke samping */
+        .product-scroll-container {
+            display: flex; overflow-x: auto; gap: 24px; padding-bottom: 15px;
+            scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        }
+
+        /* Custom Scrollbar */
+        .product-scroll-container::-webkit-scrollbar { height: 8px; }
+        .product-scroll-container::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 10px; }
+        .product-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .product-scroll-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Card Produk di dalam Scroll */
+        .product-card {
+            background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+            transition: all 0.3s ease; display: flex; flex-direction: column;
+            min-width: 280px; max-width: 280px; flex: 0 0 auto; scroll-snap-align: start;
+        }
+
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--primary); }
+        .product-image { width: 100%; height: 220px; object-fit: cover; cursor: pointer; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .product-info { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+        .product-category { font-size: 0.8rem; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .product-title { font-size: 1.2rem; color: #0f172a; margin-bottom: 10px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-price { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; margin-top: auto; }
+
+        /* Detail & Kontak Styles */
+        .detail-wrapper { background: var(--white); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-wrap: wrap; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .detail-img-container { flex: 1; min-width: 300px; }
+        .detail-img-container img { width: 100%; height: 100%; min-height: 400px; object-fit: cover; }
+        .detail-content { flex: 1; min-width: 300px; padding: 40px; }
+        .detail-content h2 { font-size: 2rem; color: #0f172a; margin-bottom: 10px; }
+        .detail-price { font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-bottom: 24px; }
+        .detail-desc { color: var(--text-light); margin-bottom: 30px; }
+        .detail-desc ul { margin-top: 10px; padding-left: 20px; }
+        .detail-desc li { margin-bottom: 8px; }
+        .contact-card { background: var(--white); max-width: 600px; margin: 0 auto; padding: 50px 30px; border-radius: 16px; text-align: center; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .contact-card h2 { font-size: 2rem; margin-bottom: 15px; color: #0f172a; }
+        .contact-card p { color: var(--text-light); margin-bottom: 30px; }
+        footer { background-color: #0f172a; color: #94a3b8; text-align: center; padding: 24px; margin-top: auto; }
+
+        @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 15px; padding: 15px; }
+            .hero h1 { font-size: 2rem; }
+            .detail-content { padding: 24px; }
+            .detail-img-container img { min-height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo" onclick="navigateTo('home')">AslamStore.</div>
+            <nav>
+                <a onclick="navigateTo('home')" id="nav-home" class="active">Home</a>
+                <a onclick="navigateTo('katalog')" id="nav-katalog">Katalog</a>
+                <a onclick="navigateTo('kontak')" id="nav-kontak">Kontak</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        
+        <div id="home" class="page-section active-page">
+            
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Temukan Produk Terbaik Untukmu</h1>
+                    
+                    <a onclick="navigateTo('katalog')" class="btn btn-primary2">Lihat Semua Katalog</a>
+                </div>
+            </div>
+
+            <h2 class="category-title">
+                    Produk Unggulan
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">Geser ke kanan &rarr;</span>
+                </h2>
+            <div class="product-scroll-container">
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" alt="Jam Tangan" class="product-image" onclick="openDetail('Jam Tangan Minimalis', 'Rp 250.000', 'Jam tangan dengan desain minimalis dan elegan. Cocok digunakan untuk acara formal maupun kasual. Strap kulit sintetis.', 'Aksesoris', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title" onclick="openDetail(...)">Jam Tangan Minimalis</h3>
+                            <div class="product-price">Rp 250.000</div>
+                            <button onclick="openDetail('Jam Tangan Minimalis', 'Rp 250.000', 'Jam tangan dengan desain minimalis dan elegan. Cocok digunakan untuk acara formal maupun kasual. Strap kulit sintetis.', 'Aksesoris', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80" alt="Gelang Etnik" class="product-image" onclick="openDetail('Gelang Manik Etnik', 'Rp 35.000', 'Gelang manik-manik buatan tangan dengan corak etnik. Tali elastis, kuat, dan nyaman dipakai sehari-hari.', 'Aksesoris', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Gelang Manik Etnik</h3>
+                            <div class="product-price">Rp 35.000</div>
+                            <button onclick="openDetail('Gelang Manik Etnik', 'Rp 35.000', 'Gelang manik-manik buatan tangan dengan corak etnik. Tali elastis, kuat, dan nyaman dipakai sehari-hari.', 'Aksesoris', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80" alt="Cincin Perak" class="product-image" onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Cincin Titanium Pria</h3>
+                            <div class="product-price">Rp 85.000</div>
+                            <button onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80" alt="Kacamata Hitam" class="product-image" onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Kacamata Anti UV</h3>
+                            <div class="product-price">Rp 120.000</div>
+                            <button onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+
+                     <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80" alt="Gelang Etnik" class="product-image" onclick="openDetail('Gelang Manik Etnik', 'Rp 35.000', 'Gelang manik-manik buatan tangan dengan corak etnik. Tali elastis, kuat, dan nyaman dipakai sehari-hari.', 'Aksesoris', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Gelang Manik Etnik</h3>
+                            <div class="product-price">Rp 35.000</div>
+                            <button onclick="openDetail('Gelang Manik Etnik', 'Rp 35.000', 'Gelang manik-manik buatan tangan dengan corak etnik. Tali elastis, kuat, dan nyaman dipakai sehari-hari.', 'Aksesoris', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80" alt="Cincin Perak" class="product-image" onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Cincin Titanium Pria</h3>
+                            <div class="product-price">Rp 85.000</div>
+                            <button onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80" alt="Kacamata Hitam" class="product-image" onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Kacamata Anti UV</h3>
+                            <div class="product-price">Rp 120.000</div>
+                            <button onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <div id="katalog" class="page-section">
+            
+            <div class="category-section">
+                <h2 class="category-title">
+                    Kategori: Aksesoris
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">Geser ke kanan &rarr;</span>
+                </h2>
+                <div class="product-scroll-container">
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" alt="Jam Tangan" class="product-image" onclick="openDetail('Jam Tangan Minimalis', 'Rp 250.000', 'Jam tangan dengan desain minimalis dan elegan. Cocok digunakan untuk acara formal maupun kasual. Strap kulit sintetis.', 'Aksesoris', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title" onclick="openDetail(...)">Jam Tangan Minimalis</h3>
+                            <div class="product-price">Rp 250.000</div>
+                            <button onclick="openDetail('Jam Tangan Minimalis', 'Rp 250.000', 'Jam tangan dengan desain minimalis dan elegan. Cocok digunakan untuk acara formal maupun kasual. Strap kulit sintetis.', 'Aksesoris', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80" alt="Gelang Etnik" class="product-image" onclick="openDetail('Gelang Manik Etnik', 'Rp 35.000', 'Gelang manik-manik buatan tangan dengan corak etnik. Tali elastis, kuat, dan nyaman dipakai sehari-hari.', 'Aksesoris', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Gelang Manik Etnik</h3>
+                            <div class="product-price">Rp 35.000</div>
+                            <button onclick="openDetail('Gelang Manik Etnik', 'Rp 35.000', 'Gelang manik-manik buatan tangan dengan corak etnik. Tali elastis, kuat, dan nyaman dipakai sehari-hari.', 'Aksesoris', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80" alt="Cincin Perak" class="product-image" onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Cincin Titanium Pria</h3>
+                            <div class="product-price">Rp 85.000</div>
+                            <button onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80" alt="Kacamata Hitam" class="product-image" onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Kacamata Anti UV</h3>
+                            <div class="product-price">Rp 120.000</div>
+                            <button onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80" alt="Cincin Perak" class="product-image" onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Cincin Titanium Pria</h3>
+                            <div class="product-price">Rp 85.000</div>
+                            <button onclick="openDetail('Cincin Titanium Pria', 'Rp 85.000', 'Cincin titanium anti karat dengan desain maskulin dan simpel.', 'Aksesoris', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80" alt="Kacamata Hitam" class="product-image" onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Aksesoris</span>
+                            <h3 class="product-title">Kacamata Anti UV</h3>
+                            <div class="product-price">Rp 120.000</div>
+                            <button onclick="openDetail('Kacamata Anti UV', 'Rp 120.000', 'Kacamata gaya dengan lensa anti UV. Nyaman dipakai saat berkendara atau ke pantai.', 'Aksesoris', 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h2 class="category-title">
+                    Kategori: Pakaian
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">Geser ke kanan &rarr;</span>
+                </h2>
+                <div class="product-scroll-container">
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=600&q=80" alt="Hoodie Polos" class="product-image" onclick="openDetail('Hoodie Premium Basic', 'Rp 185.000', 'Hoodie berbahan katun fleece tebal namun lembut. Tersedia ukuran M, L, XL.', 'Pakaian', 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Pakaian</span>
+                            <h3 class="product-title">Hoodie Premium Basic</h3>
+                            <div class="product-price">Rp 185.000</div>
+                            <button onclick="openDetail('Hoodie Premium Basic', 'Rp 185.000', 'Hoodie berbahan katun fleece tebal namun lembut. Tersedia ukuran M, L, XL.', 'Pakaian', 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80" alt="Kaos Polos" class="product-image" onclick="openDetail('Kaos Polos Combed 30s', 'Rp 45.000', 'Kaos polos bahan cotton combed 30s. Adem, menyerap keringat, jahitan rapi.', 'Pakaian', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Pakaian</span>
+                            <h3 class="product-title">Kaos Polos Combed 30s</h3>
+                            <div class="product-price">Rp 45.000</div>
+                            <button onclick="openDetail('Kaos Polos Combed 30s', 'Rp 45.000', 'Kaos polos bahan cotton combed 30s. Adem, menyerap keringat, jahitan rapi.', 'Pakaian', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80" alt="Celana Jeans" class="product-image" onclick="openDetail('Celana Jeans Reguler', 'Rp 150.000', 'Celana jeans denim asli potongan reguler fit. Nyaman untuk nongkrong.', 'Pakaian', 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Pakaian</span>
+                            <h3 class="product-title">Celana Jeans Reguler</h3>
+                            <div class="product-price">Rp 150.000</div>
+                            <button onclick="openDetail('Celana Jeans Reguler', 'Rp 150.000', 'Celana jeans denim asli potongan reguler fit. Nyaman untuk nongkrong.', 'Pakaian', 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80" alt="Kemeja Flanel" class="product-image" onclick="openDetail('Kemeja Flanel Casual', 'Rp 135.000', 'Kemeja flanel bahan premium tidak berbulu. Cocok untuk acara kasual maupun semi formal.', 'Pakaian', 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Pakaian</span>
+                            <h3 class="product-title">Kemeja Flanel Casual</h3>
+                            <div class="product-price">Rp 135.000</div>
+                            <button onclick="openDetail('Kemeja Flanel Casual', 'Rp 135.000', 'Kemeja flanel bahan premium tidak berbulu. Cocok untuk acara kasual maupun semi formal.', 'Pakaian', 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80" alt="Celana Jeans" class="product-image" onclick="openDetail('Celana Jeans Reguler', 'Rp 150.000', 'Celana jeans denim asli potongan reguler fit. Nyaman untuk nongkrong.', 'Pakaian', 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Pakaian</span>
+                            <h3 class="product-title">Celana Jeans Reguler</h3>
+                            <div class="product-price">Rp 150.000</div>
+                            <button onclick="openDetail('Celana Jeans Reguler', 'Rp 150.000', 'Celana jeans denim asli potongan reguler fit. Nyaman untuk nongkrong.', 'Pakaian', 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80" alt="Kemeja Flanel" class="product-image" onclick="openDetail('Kemeja Flanel Casual', 'Rp 135.000', 'Kemeja flanel bahan premium tidak berbulu. Cocok untuk acara kasual maupun semi formal.', 'Pakaian', 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Pakaian</span>
+                            <h3 class="product-title">Kemeja Flanel Casual</h3>
+                            <div class="product-price">Rp 135.000</div>
+                            <button onclick="openDetail('Kemeja Flanel Casual', 'Rp 135.000', 'Kemeja flanel bahan premium tidak berbulu. Cocok untuk acara kasual maupun semi formal.', 'Pakaian', 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-section">
+                <h2 class="category-title">
+                    Kategori: Makanan Ringan
+                    <span style="font-size: 0.9rem; color: #94a3b8; font-weight: normal;">Geser ke kanan &rarr;</span>
+                </h2>
+                <div class="product-scroll-container">
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80" alt="Cookies" class="product-image" onclick="openDetail('Cookies Choco Chips', 'Rp 45.000', 'Kue kering renyah dengan taburan choco chips melimpah.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Makanan Ringan</span>
+                            <h3 class="product-title">Cookies Choco Chips</h3>
+                            <div class="product-price">Rp 45.000</div>
+                            <button onclick="openDetail('Cookies Choco Chips', 'Rp 45.000', 'Kue kering renyah dengan taburan choco chips melimpah.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=600&q=80" alt="Keripik" class="product-image" onclick="openDetail('Keripik Kentang Pedas', 'Rp 15.000', 'Keripik kentang tipis renyah dengan bumbu pedas manis daun jeruk.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Makanan Ringan</span>
+                            <h3 class="product-title">Keripik Kentang Pedas</h3>
+                            <div class="product-price">Rp 15.000</div>
+                            <button onclick="openDetail('Keripik Kentang Pedas', 'Rp 15.000', 'Keripik kentang tipis renyah dengan bumbu pedas manis daun jeruk.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1570197781417-0a52375c0aa1?auto=format&fit=crop&w=600&q=80" alt="Kacang" class="product-image" onclick="openDetail('Kacang Bawang Renyah', 'Rp 25.000', 'Kacang bawang gurih dan renyah. Cocok buat nemenin nonton drakor.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1570197781417-0a52375c0aa1?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Makanan Ringan</span>
+                            <h3 class="product-title">Kacang Bawang Renyah</h3>
+                            <div class="product-price">Rp 25.000</div>
+                            <button onclick="openDetail('Kacang Bawang Renyah', 'Rp 25.000', 'Kacang bawang gurih dan renyah. Cocok buat nemenin nonton drakor.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1570197781417-0a52375c0aa1?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=600&q=80" alt="Brownies" class="product-image" onclick="openDetail('Brownies Panggang Fudgy', 'Rp 55.000', 'Brownies panggang dengan tekstur fudgy di dalam dan garing di luar.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Makanan Ringan</span>
+                            <h3 class="product-title">Brownies Panggang Fudgy</h3>
+                            <div class="product-price">Rp 55.000</div>
+                            <button onclick="openDetail('Brownies Panggang Fudgy', 'Rp 55.000', 'Brownies panggang dengan tekstur fudgy di dalam dan garing di luar.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1570197781417-0a52375c0aa1?auto=format&fit=crop&w=600&q=80" alt="Kacang" class="product-image" onclick="openDetail('Kacang Bawang Renyah', 'Rp 25.000', 'Kacang bawang gurih dan renyah. Cocok buat nemenin nonton drakor.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1570197781417-0a52375c0aa1?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Makanan Ringan</span>
+                            <h3 class="product-title">Kacang Bawang Renyah</h3>
+                            <div class="product-price">Rp 25.000</div>
+                            <button onclick="openDetail('Kacang Bawang Renyah', 'Rp 25.000', 'Kacang bawang gurih dan renyah. Cocok buat nemenin nonton drakor.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1570197781417-0a52375c0aa1?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <img src="https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=600&q=80" alt="Brownies" class="product-image" onclick="openDetail('Brownies Panggang Fudgy', 'Rp 55.000', 'Brownies panggang dengan tekstur fudgy di dalam dan garing di luar.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=800&q=80')">
+                        <div class="product-info">
+                            <span class="product-category">Makanan Ringan</span>
+                            <h3 class="product-title">Brownies Panggang Fudgy</h3>
+                            <div class="product-price">Rp 55.000</div>
+                            <button onclick="openDetail('Brownies Panggang Fudgy', 'Rp 55.000', 'Brownies panggang dengan tekstur fudgy di dalam dan garing di luar.', 'Makanan Ringan', 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&w=800&q=80')" class="btn btn-outline">Detail Produk</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="detail" class="page-section">
+            <a onclick="navigateTo('katalog')" style="display:inline-block; margin-bottom:20px; color:var(--primary); cursor:pointer; font-weight:600; text-decoration:none;">
+                ← Kembali ke Katalog
+            </a>
+            
+            <div class="detail-wrapper">
+                <div class="detail-img-container">
+                    <img id="detail-image" src="" alt="Foto Produk">
+                </div>
+                
+                <div class="detail-content">
+                    <span id="detail-category" class="product-category">Kategori</span>
+                    <h2 id="detail-title">Nama Produk</h2>
+                    <div id="detail-price" class="detail-price">Rp 0</div>
+                    
+                    <div class="detail-desc">
+                        <strong>Deskripsi Produk:</strong>
+                        <p id="detail-description" style="margin-top: 8px;">Deskripsi akan muncul di sini.</p>
+                        
+                        <br>
+                        <strong>Keunggulan:</strong>
+                        <ul>
+                            <li>Kualitas terjamin premium</li>
+                            <li>Pengemasan aman dan rapi</li>
+                            <li>Garansi penukaran jika cacat</li>
+                        </ul>
+                    </div>
+                    
+                    <a id="detail-wa-btn" href="#" target="_blank" class="btn btn-wa">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c.004-3.639 2.961-6.592 6.602-6.592 1.76 0 3.416.687 4.66 1.931a6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                        </svg>
+                        Chat Admin Sekarang
+                    </a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2024 AslamStore. Hak cipta dilindungi</p>
+    </footer>
+
+    <script>
+        function navigateTo(pageId) {
+            const pages = document.querySelectorAll('.page-section');
+            pages.forEach(page => page.classList.remove('active-page'));
+
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active-page');
+
+            if (pageId !== 'detail') {
+                document.getElementById('nav-' + pageId).classList.add('active');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openDetail(title, price, desc, category, imgSrc) {
+            document.getElementById('detail-title').textContent = title;
+            document.getElementById('detail-price').textContent = price;
+            document.getElementById('detail-description').textContent = desc;
+            document.getElementById('detail-category').textContent = category;
+            document.getElementById('detail-image').src = imgSrc;
+
+            const waNumber = "6285180691976"; // Ganti dengan nomormu
+            const waMessage = `Halo Admin, saya ingin order produk *${title}* dengan harga ${price}. Apakah barangnya masih ready?`;
+            const encodedMessage = encodeURIComponent(waMessage);
+            document.getElementById('detail-wa-btn').href = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+
+            navigateTo('detail');
+        }
+    </script>
+</body>
+</html>
